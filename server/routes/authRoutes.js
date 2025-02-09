@@ -12,6 +12,74 @@ const { protect } = require('../middleware/authMiddleware');
  *       properties:
  *         id:
  *           type: string
+ *         username:
+ *           type: string
+ *         email:
+ *           type: string
+ *         role:
+ *           type: string
+ *           enum: [user, admin]
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ */
+
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Register new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - email
+ *               - password
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: johndoe
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: john@example.com
+ *               password:
+ *                 type: string
+ *                 example: "123456"
+ *     responses:
+ *       201:
+ *         description: Registration successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input or email/username already exists
+ */
+router.post('/register', authController.register);
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
  *         email:
  *           type: string
  *         name:
@@ -62,11 +130,11 @@ const { protect } = require('../middleware/authMiddleware');
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', authController.login.bind(authController));
+router.post('/login', authController.login);
 
 /**
  * @swagger
- * /api/auth/protected:
+ * /api/auth/get-my-info:
  *   get:
  *     summary: Get protected user data
  *     tags: [Auth]
@@ -74,7 +142,7 @@ router.post('/login', authController.login.bind(authController));
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Protected data retrieved successfully
+ *         description: Successfully retrieved user information
  *         content:
  *           application/json:
  *             schema:
@@ -83,10 +151,10 @@ router.post('/login', authController.login.bind(authController));
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       401:
- *         description: Not authorized
+ *         description: Not authorized, no token or invalid token
+ *       404:
+ *         description: User not found
  */
-router.get('/protected', protect, (req, res) => {
-    res.json({ user: req.user });
-});
+router.get('/get-my-info', protect, authController.getMyInfo);
 
 module.exports = router; 

@@ -12,32 +12,30 @@ class AuthService {
         const refreshToken = jwt.sign(
             { userId },
             process.env.JWT_REFRESH_SECRET,
-            { expiresIn: '7d' }
+            { expiresIn: '1d' }
         );
 
         return { accessToken, refreshToken };
     }
 
     async login(email, password) {
-        const user = await userRepository.findByEmail(email);
+        const user = await userRepository.findByEmailWithPassword(email);
         if (!user) {
-            throw new Error('User not found');
+            throw new Error('Invalid credentials');
         }
 
         const isMatch = await user.matchPassword(password);
         if (!isMatch) {
-            throw new Error('Invalid password');
+            throw new Error('Invalid credentials');
         }
 
         const { accessToken, refreshToken } = this.generateTokens(user._id);
 
-        // Save refresh token
-        await userRepository.deleteToken(user._id, 'refresh');
+        // Save tokens
         await userRepository.saveToken({
             userId: user._id,
-            token: refreshToken,
-            type: 'refresh',
-            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+            accessToken,
+            refreshToken
         });
 
         return {
@@ -51,6 +49,50 @@ class AuthService {
                 accessToken,
                 refreshToken
             }
+        };
+    }
+
+    async register(username, email, password) {
+        // Check if user already exists
+        const existingEmail = await userRepository.findByEmail(email);
+        const existingUsername = await userRepository.findByUsername(username);
+
+        if (existingEmail) {
+            throw new Error('User already exists with this email');
+        }
+
+        if (existingUsername) {
+            throw new Error('Username is already taken');
+        }
+
+        // Create new user
+        const user = await userRepository.createUser({
+            username,
+            email,
+            password
+        });
+
+        return {
+            user: {
+                id: user._id,
+                email: user.email,
+                username: user.username,
+                role: user.role
+            }
+        };
+    }
+
+    async getMyInfo(userId) {
+        const user = await userRepository.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+        
+        return {
+            id: user._id,
+            email: user.email,
+            username: user.username,
+            role: user.role
         };
     }
 }

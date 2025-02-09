@@ -21,6 +21,18 @@ class UserRepository {
     async deleteToken(userId, type) {
         return await UserToken.deleteOne({ userId, type });
     }
+
+    async findByUsername(username) {
+        return await User.findOne({ username });
+    }
+
+    async findByEmailWithPassword(email) {
+        return await User.findOne({ email }).select('+password');
+    }
+
+    async findById(userId) {
+        return await User.findById(userId).select('-password');
+    }
 }
 
 module.exports = new UserRepository(); 

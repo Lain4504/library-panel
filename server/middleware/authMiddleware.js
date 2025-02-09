@@ -1,8 +1,26 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const publicEndpoints = [
+    { path: '/api/auth/login', method: 'POST' },
+    { path: '/api/auth/register', method: 'POST' },
+    
+];
+
+
 const protect = async (req, res, next) => {
     try {
+        // Check if the endpoint is public
+        const isPublicEndpoint = publicEndpoints.some(
+            endpoint => endpoint.path === req.path && endpoint.method === req.method
+
+        );
+
+        if (isPublicEndpoint) {
+            return next();
+        }
+
+        // Authenticate token for protected endpoints
         let token;
 
         if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -12,12 +30,20 @@ const protect = async (req, res, next) => {
         if (!token) {
             return res.status(401).json({
                 success: false,
-                message: 'Not authorized to access this route'
+                message: 'Authentication required'
             });
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = await User.findById(decoded.userId);
+        
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
         next();
     } catch (error) {
         res.status(401).json({
