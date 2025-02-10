@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const userRepository = require('../repositories/userRepository');
 const { sendEmail } = require('../config/sendEmail');
-
+const UserProfileService = require('./userProfileService');
 class AuthService {
     #generateAccessToken(userId) {
         return jwt.sign(
@@ -186,7 +186,7 @@ class AuthService {
             // Activate account
             user.status = 'active';
             await user.save();
-
+            await UserProfileService.createUserProfile({ userId: user._id });
             // Remove activation token
             userRepository.removeActivationToken(token);
 
@@ -201,8 +201,6 @@ class AuthService {
             throw error;
         }
     }
-
 }
-
 
 module.exports = new AuthService(); 

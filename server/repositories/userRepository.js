@@ -42,13 +42,11 @@ class UserRepository {
         if (!user) {
             throw new Error('User not found');
         }
-
         // Save token to Map
         this.#activationTokens.set(token, {
             userId: userId.toString(),
             expiresAt
         });
-
         // Set up automatic token removal after expiration
         setTimeout(() => {
             if (this.#activationTokens.has(token)) {
@@ -60,17 +58,14 @@ class UserRepository {
 
     async findByActivationToken(token) {
         const tokenData = this.#activationTokens.get(token);
-        
         if (!tokenData) {
             return null;
         }
-
         // Check if token has expired
         if (tokenData.expiresAt < new Date()) {
             this.#activationTokens.delete(token);
             return null;
         }
-
         return await User.findById(tokenData.userId);
     }
 
@@ -78,11 +73,9 @@ class UserRepository {
     removeActivationToken(token) {
         this.#activationTokens.delete(token);
     }
-
     async deleteUser(userId) {
         return await User.findByIdAndDelete(userId);
     }
-
 }
 
 module.exports = new UserRepository(); 

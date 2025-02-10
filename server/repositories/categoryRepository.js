@@ -19,13 +19,11 @@ class CategoryRepository {
                 throw new Error('Category name already exists');
             }
         }
-        
         const category = await Category.findByIdAndUpdate(
             id,
             categoryData,
             { new: true }
         );
-        
         if (!category) {
             throw new Error('Category not found');
         }
