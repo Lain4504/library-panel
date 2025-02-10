@@ -79,6 +79,10 @@ class UserRepository {
         this.#activationTokens.delete(token);
     }
 
+    async deleteUser(userId) {
+        return await User.findByIdAndDelete(userId);
+    }
+
 }
 
 module.exports = new UserRepository(); 

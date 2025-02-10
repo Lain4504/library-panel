@@ -48,6 +48,15 @@ class AuthService {
             throw new Error('Invalid credentials');
         }
 
+        // Check account status
+        if (user.status === 'deleted') {
+            throw new Error('This account has been deleted');
+        }
+
+        if (user.status === 'inactive') {
+            throw new Error('Please activate your account before logging in');
+        }
+
         const isMatch = await user.matchPassword(password);
         if (!isMatch) {
             throw new Error('Invalid credentials');
@@ -77,47 +86,67 @@ class AuthService {
     }
 
     async register(username, email, password) {
-        // Check if user already exists
-        const existingEmail = await userRepository.findByEmail(email);
-        const existingUsername = await userRepository.findByUsername(username);
+        let createdUser = null;
+        
+        try {
+            // Check if user already exists
+            const existingEmail = await userRepository.findByEmail(email);
+            const existingUsername = await userRepository.findByUsername(username);
 
-        if (existingEmail) {
-            throw new Error('User already exists with this email');
-        }
-
-        if (existingUsername) {
-            throw new Error('Username is already taken');
-        }
-
-        // Create new user
-        const user = await userRepository.createUser({
-            username,
-            email,
-            password,
-            status: 'inactive'
-        });
-
-        // Generate activation token
-        const activationToken = this.#generateAccessToken(user._id);
-
-        // Save activation token with 15 minutes expiry
-        await userRepository.saveActivationToken({
-            userId: user._id,
-            token: activationToken,
-            expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
-        });
-
-        // Send activation email
-        this.#sendActivationEmail(user, activationToken);
-
-        return {
-            user: {
-                id: user._id,
-                email: user.email,
-                username: user.username,
-                role: user.role
+            if (existingEmail) {
+                throw new Error('User already exists with this email');
             }
-        };
+
+            if (existingUsername) {
+                throw new Error('Username is already taken');
+            }
+
+            // Create new user
+            createdUser = await userRepository.createUser({
+                username,
+                email,
+                password,
+                status: 'inactive'
+            });
+
+            // Generate activation token
+            const activationToken = this.#generateAccessToken(createdUser._id);
+
+            try {
+                // Save activation token with 15 minutes expiry
+                await userRepository.saveActivationToken({
+                    userId: createdUser._id,
+                    token: activationToken,
+                    expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
+                });
+
+                // Send activation email
+                await this.#sendActivationEmail(createdUser, activationToken);
+
+            } catch (error) {
+                // If saving token or sending email fails, delete the created user
+                if (createdUser) {
+                    await userRepository.deleteUser(createdUser._id);
+                }
+                throw new Error('Failed to complete registration process. Please try again.');
+            }
+
+            return {
+                user: {
+                    id: createdUser._id,
+                    email: createdUser.email,
+                    username: createdUser.username,
+                    role: createdUser.role
+                }
+            };
+
+        } catch (error) {
+            // If any error occurs and user was created, delete it
+            if (createdUser) {
+                await userRepository.deleteUser(createdUser._id);
+            }
+            throw error;
+        }
     }
 
     async getMyInfo(userId) {
