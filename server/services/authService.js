@@ -1,22 +1,46 @@
 const jwt = require('jsonwebtoken');
 const userRepository = require('../repositories/userRepository');
+const { sendEmail } = require('../config/sendEmail');
 
 class AuthService {
-    generateTokens(userId) {
-        const accessToken = jwt.sign(
+    #generateAccessToken(userId) {
+        return jwt.sign(
             { userId },
             process.env.JWT_SECRET,
             { expiresIn: '15m' }
         );
+    }
 
-        const refreshToken = jwt.sign(
+    #generateRefreshToken(userId) {
+        return jwt.sign(
             { userId },
             process.env.JWT_REFRESH_SECRET,
             { expiresIn: '1d' }
         );
+    }
 
+
+    #generateTokens(userId) {
+        const accessToken = this.#generateAccessToken(userId);
+        const refreshToken = this.#generateRefreshToken(userId);
         return { accessToken, refreshToken };
     }
+
+    #sendActivationEmail(user, token) {
+        console.log('Preparing activation email for user:', {
+            username: user.username,
+            email: user.email
+        });
+        
+        const activationUrl = `${process.env.CLIENT_URL}/activate/${token}`;
+        const message = `Hello ${user.username},\n\nPlease activate your account by clicking the link below:\n\n${activationUrl}\n\nThank you!`;
+
+        sendEmail({
+            email: user.email,
+            subject: 'Account Activation',
+            message
+        });
+    };
 
     async login(email, password) {
         const user = await userRepository.findByEmailWithPassword(email);
@@ -29,7 +53,7 @@ class AuthService {
             throw new Error('Invalid credentials');
         }
 
-        const { accessToken, refreshToken } = this.generateTokens(user._id);
+        const { accessToken, refreshToken } = this.#generateTokens(user._id);
 
         // Save tokens
         await userRepository.saveToken({
@@ -69,8 +93,22 @@ class AuthService {
         const user = await userRepository.createUser({
             username,
             email,
-            password
+            password,
+            status: 'inactive'
         });
+
+        // Generate activation token
+        const activationToken = this.#generateAccessToken(user._id);
+
+        // Save activation token with 15 minutes expiry
+        await userRepository.saveActivationToken({
+            userId: user._id,
+            token: activationToken,
+            expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
+        });
+
+        // Send activation email
+        this.#sendActivationEmail(user, activationToken);
 
         return {
             user: {
@@ -87,7 +125,7 @@ class AuthService {
         if (!user) {
             throw new Error('User not found');
         }
-        
+
         return {
             id: user._id,
             email: user.email,
@@ -95,6 +133,47 @@ class AuthService {
             role: user.role
         };
     }
+
+    async activateAccount(token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            // Tìm user bằng activation token
+            const user = await userRepository.findByActivationToken(token);
+            if (!user) {
+                throw new Error('Invalid activation token');
+            }
+
+            // Kiểm tra user ID từ token có khớp không
+            if (decoded.userId.toString() !== user._id.toString()) {
+                throw new Error('Invalid activation token');
+            }
+
+            // Kiểm tra tài khoản đã kích hoạt chưa
+            if (user.status === 'active') {
+                throw new Error('Account is already activated');
+            }
+
+            // Kích hoạt tài khoản
+            user.status = 'active';
+            await user.save();
+
+            // Xóa activation token
+            userRepository.removeActivationToken(token);
+
+            return { message: 'Account activated successfully' };
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                throw new Error('Activation token has expired');
+            }
+            if (error.name === 'JsonWebTokenError') {
+                throw new Error('Invalid activation token');
+            }
+            throw error;
+        }
+    }
+
 }
+
 
 module.exports = new AuthService(); 

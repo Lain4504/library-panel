@@ -47,6 +47,19 @@ class AuthController {
             });
         }
     }
+
+    async activateAccount(req, res) {
+        try {
+            const { token } = req.params;
+            await authService.activateAccount(token);
+            res.json({ message: 'Account activated successfully' });
+        } catch (error) {
+            res.status(400).json({ 
+                message: error.message || 'Error activating account'
+            });
+        }
+    }
+
 }
 
 module.exports = new AuthController(); 

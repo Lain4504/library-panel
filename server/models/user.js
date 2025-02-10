@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema({
         minlength: 6,
         select: false
     },
+    status: {
+        type: String,
+        enum: ['inactive', 'active', 'deleted'],
+        default: 'inactive'
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],
@@ -31,6 +36,7 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
+    
 });
 
 // Encrypt password before saving
