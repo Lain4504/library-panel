@@ -14,6 +14,15 @@
  *         role:
  *           type: string
  *           enum: [user, admin]
+ *     Category:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
  *   securitySchemes:
  *     bearerAuth:
  *       type: http
@@ -33,24 +42,17 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - username
- *               - email
- *               - password
+ *             required: [username, email, password]
  *             properties:
  *               username:
  *                 type: string
- *                 example: johndoe
  *               email:
  *                 type: string
- *                 format: email
- *                 example: john@example.com
  *               password:
  *                 type: string
- *                 example: "123456"
  *     responses:
  *       201:
- *         description: Registration successful
+ *         description: Success
  *         content:
  *           application/json:
  *             schema:
@@ -58,11 +60,10 @@
  *               properties:
  *                 token:
  *                   type: string
- *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       400:
- *         description: Invalid input or email/username already exists
+ *         description: Invalid input
  */
 
 /**
@@ -77,20 +78,15 @@
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - email
- *               - password
+ *             required: [email, password]
  *             properties:
  *               email:
  *                 type: string
- *                 format: email
- *                 example: user@example.com
  *               password:
  *                 type: string
- *                 example: "123456"
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Success
  *         content:
  *           application/json:
  *             schema:
@@ -98,7 +94,6 @@
  *               properties:
  *                 token:
  *                   type: string
- *                   example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       401:
@@ -109,31 +104,28 @@
  * @swagger
  * /api/auth/get-my-info:
  *   get:
- *     summary: Get protected user data
+ *     summary: Get user info
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Successfully retrieved user information
+ *         description: Success
  *         content:
  *           application/json:
  *             schema:
- *               type: object
  *               properties:
  *                 user:
  *                   $ref: '#/components/schemas/User'
  *       401:
- *         description: Not authorized, no token or invalid token
- *       404:
- *         description: User not found
+ *         description: Unauthorized
  */
 
 /**
  * @swagger
  * /api/auth/activate/{token}:
  *   get:
- *     summary: Kích hoạt tài khoản người dùng
+ *     summary: Activate account
  *     tags: [Auth]
  *     parameters:
  *       - in: path
@@ -141,20 +133,136 @@
  *         required: true
  *         schema:
  *           type: string
- *         description: Token kích hoạt được gửi qua email
  *     responses:
  *       200:
- *         description: Tài khoản đã được kích hoạt thành công
+ *         description: Success
+ *       400:
+ *         description: Invalid token
+ */
+
+/**
+ * @swagger
+ * /api/categories:
+ *   post:
+ *     summary: Create category
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             required: [name]
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Success
  *         content:
  *           application/json:
  *             schema:
- *               type: object
+ *               $ref: '#/components/schemas/Category'
+ *       401:
+ *         description: Unauthorized
+ *
+ *   get:
+ *     summary: Get all categories
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: size
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: field
+ *         schema:
+ *           type: string
+ *           default: createdAt
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
  *               properties:
- *                 message:
- *                   type: string
- *                   example: Tài khoản đã được kích hoạt thành công
- *       400:
- *         description: Token không hợp lệ hoặc đã hết hạn
- *       404:
- *         description: Không tìm thấy token kích hoạt
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Category'
+ *                 pagination:
+ *                   type: object
+ */
+
+/**
+ * @swagger
+ * /api/categories/{id}:
+ *   get:
+ *     summary: Get category by ID
+ *     tags: [Categories]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
+ *
+ *   put:
+ *     summary: Update category
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
+ *
+ *   delete:
+ *     summary: Delete category
+ *     tags: [Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Success
  */

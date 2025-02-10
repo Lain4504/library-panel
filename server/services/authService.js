@@ -167,27 +167,27 @@ class AuthService {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            // Tìm user bằng activation token
+            // If not found, throw error
             const user = await userRepository.findByActivationToken(token);
             if (!user) {
                 throw new Error('Invalid activation token');
             }
 
-            // Kiểm tra user ID từ token có khớp không
+            // If not match, throw error
             if (decoded.userId.toString() !== user._id.toString()) {
                 throw new Error('Invalid activation token');
             }
 
-            // Kiểm tra tài khoản đã kích hoạt chưa
+            // If already activated, throw error
             if (user.status === 'active') {
                 throw new Error('Account is already activated');
             }
 
-            // Kích hoạt tài khoản
+            // Activate account
             user.status = 'active';
             await user.save();
 
-            // Xóa activation token
+            // Remove activation token
             userRepository.removeActivationToken(token);
 
             return { message: 'Account activated successfully' };
