@@ -42,6 +42,27 @@ class AuthService {
         });
     };
 
+    #sendResetPasswordEmail(user, token) {
+        console.log('Preparing reset password email for user:', {
+            username: user.username,
+            email: user.email
+        });
+        
+        const resetPasswordUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
+        const message = `Hello ${user.username},\n\n` +
+            `You have requested to reset your password. Please click the link below to reset your password:\n\n` +
+            `${resetPasswordUrl}\n\n` +
+            `This link will expire in 15 minutes.\n\n` +
+            `If you did not request this, please ignore this email and your password will remain unchanged.\n\n` +
+            `Thank you!`;
+
+        sendEmail({
+            email: user.email,
+            subject: 'Reset Password Request',
+            message
+        });
+    }
+
     async login(email, password) {
         const user = await userRepository.findByEmailWithPassword(email);
         if (!user) {
@@ -114,7 +135,7 @@ class AuthService {
 
             try {
                 // Save activation token with 15 minutes expiry
-                await userRepository.saveActivationToken({
+                await userRepository.saveVerifyToken({
                     userId: createdUser._id,
                     token: activationToken,
                     expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
@@ -168,7 +189,7 @@ class AuthService {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
             // If not found, throw error
-            const user = await userRepository.findByActivationToken(token);
+            const user = await userRepository.findByVerifyToken(token);
             if (!user) {
                 throw new Error('Invalid activation token');
             }
@@ -188,7 +209,7 @@ class AuthService {
             await user.save();
             await UserProfileService.createUserProfile({ userId: user._id });
             // Remove activation token
-            userRepository.removeActivationToken(token);
+            userRepository.removeVerifyToken(token);
 
             return { message: 'Account activated successfully' };
         } catch (error) {
@@ -201,6 +222,34 @@ class AuthService {
             throw error;
         }
     }
+
+    async sendResetPasswordEmail(email) {
+        try {
+            // Find user by email
+            const user = await userRepository.findByEmail(email);
+            if (!user) {
+                throw new Error('User with this email does not exist');
+            }
+
+            // Generate reset password token
+            const resetToken = this.#generateAccessToken(user._id);
+
+            // Save reset token with 15 minutes expiry
+            await userRepository.saveVerifyToken({
+                userId: user._id,
+                token: resetToken,
+                expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
+            });
+
+            // Send reset password email
+            await this.#sendResetPasswordEmail(user, resetToken);
+
+            return { message: 'Reset password email sent successfully' };
+        } catch (error) {
+            throw error;
+        }
+    }
+
 }
 
 module.exports = new AuthService(); 

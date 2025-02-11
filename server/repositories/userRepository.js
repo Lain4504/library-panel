@@ -37,7 +37,7 @@ class UserRepository {
         return await User.findById(userId).select('-password');
     }
 
-    async saveActivationToken({ userId, token, expiresAt }) {
+    async saveVerifyToken({ userId, token, expiresAt }) {
         const user = await User.findById(userId);
         if (!user) {
             throw new Error('User not found');
@@ -56,7 +56,7 @@ class UserRepository {
         }, 15 * 60 * 1000); // 15 minutes
     }
 
-    async findByActivationToken(token) {
+    async findByVerifyToken(token) {
         const tokenData = this.#activationTokens.get(token);
         if (!tokenData) {
             return null;
@@ -70,7 +70,7 @@ class UserRepository {
     }
 
     // Add method to remove token after successful activation
-    removeActivationToken(token) {
+    removeVerifyToken(token) {
         this.#activationTokens.delete(token);
     }
     async deleteUser(userId) {

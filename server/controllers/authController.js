@@ -60,6 +60,17 @@ class AuthController {
         }
     }
 
+    async sendResetPasswordEmail(req, res) {
+        try {
+            const { email } = req.body;
+            const result = await authService.sendResetPasswordEmail(email);
+            res.json(result);
+        } catch (error) {
+            res.status(400).json({ 
+                message: error.message || 'Error sending reset password email'
+            });
+        }
+    }
 }
 
 module.exports = new AuthController(); 
