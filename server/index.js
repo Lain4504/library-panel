@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 const connectDB = require('./config/db');
 const routes = require('./routes');
+const cors = require('cors');
 
 // Config dotenv
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -10,6 +11,12 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const app = express();
 
 // Middleware
+app.use(cors({
+    origin: '*', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'], 
+    credentials: true, 
+}));
 app.use(express.json());
 
 // Connect to database
