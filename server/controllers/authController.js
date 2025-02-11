@@ -71,6 +71,34 @@ class AuthController {
             });
         }
     }
+
+    async changePassword(req, res) {
+        try {
+            const { newPassword, confirmPassword } = req.body;
+            const userId = req.user.id; // from auth middleware
+            
+            const result = await authService.changePassword(userId, newPassword, confirmPassword);
+            res.json(result);
+        } catch (error) {
+            res.status(400).json({ 
+                message: error.message || 'Error changing password'
+            });
+        }
+    }
+
+    async resetPassword(req, res) {
+        try {
+            const { token } = req.params;
+            const { newPassword, confirmPassword } = req.body;
+            
+            const result = await authService.resetPassword(token, newPassword, confirmPassword);
+            res.json(result);
+        } catch (error) {
+            res.status(400).json({ 
+                message: error.message || 'Error resetting password'
+            });
+        }
+    }
 }
 
 module.exports = new AuthController(); 

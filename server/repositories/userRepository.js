@@ -76,6 +76,9 @@ class UserRepository {
     async deleteUser(userId) {
         return await User.findByIdAndDelete(userId);
     }
+    async removeAllTokens(userId) {
+        return await UserToken.deleteMany({ userId });
+    }
 }
 
 module.exports = new UserRepository(); 

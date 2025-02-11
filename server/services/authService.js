@@ -250,6 +250,74 @@ class AuthService {
         }
     }
 
+    async changePassword(userId, newPassword, confirmPassword) {
+        try {
+            // Validate password match
+            if (newPassword !== confirmPassword) {
+                throw new Error('Passwords do not match');
+            }
+
+            // Find user
+            const user = await userRepository.findById(userId);
+            if (!user) {
+                throw new Error('User not found');
+            }
+
+            // Update password
+            user.password = newPassword;
+            await user.save();
+
+            // Invalidate all existing tokens for security
+            await userRepository.removeAllTokens(userId);
+
+            return { message: 'Password changed successfully' };
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async resetPassword(token, newPassword, confirmPassword) {
+        try {
+            // Validate password match
+            if (newPassword !== confirmPassword) {
+                throw new Error('Passwords do not match');
+            }
+
+            // Verify token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+            // Find user by reset password token
+            const user = await userRepository.findByVerifyToken(token);
+            if (!user) {
+                throw new Error('Invalid or expired reset token');
+            }
+
+            // Verify token belongs to user
+            if (decoded.userId.toString() !== user._id.toString()) {
+                throw new Error('Invalid reset token');
+            }
+
+            // Update password
+            user.password = newPassword;
+            await user.save();
+
+            // Remove reset token
+            await userRepository.removeVerifyToken(token);
+
+            // Invalidate all existing tokens for security
+            await userRepository.removeAllTokens(user._id);
+
+            return { message: 'Password reset successfully' };
+        } catch (error) {
+            if (error.name === 'TokenExpiredError') {
+                throw new Error('Reset token has expired');
+            }
+            if (error.name === 'JsonWebTokenError') {
+                throw new Error('Invalid reset token');
+            }
+            throw error;
+        }
+    }
 }
 
 module.exports = new AuthService(); 
