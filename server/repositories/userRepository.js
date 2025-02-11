@@ -79,6 +79,25 @@ class UserRepository {
     async removeAllTokens(userId) {
         return await UserToken.deleteMany({ userId });
     }
+    async findAll(page = 1, size = 10, sortField = 'createdAt') {
+        const skip = (page - 1) * size;
+        
+        const [data, total] = await Promise.all([
+            User.find()
+                .sort({ [sortField]: 1 })
+                .skip(skip)
+                .limit(size),
+            User.countDocuments()
+        ]);
+
+        return {
+            data,
+            totalElements: total,
+            totalPages: Math.ceil(total / size),
+            currentPage: page,
+            currentSize: size
+        };
+    }
 }
 
 module.exports = new UserRepository(); 

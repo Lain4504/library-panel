@@ -318,6 +318,9 @@ class AuthService {
             throw error;
         }
     }
+    async getAllUsers(page, size, sortField) {
+        return await userRepository.findAll(page, size, sortField);
+    }
 }
 
 module.exports = new AuthService(); 
