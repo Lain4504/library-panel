@@ -4,7 +4,8 @@ const User = require('../models/user');
 const publicEndpoints = [
     { path: '/api/auth/login', method: 'POST' }, 
     { path: '/api/auth/register', method: 'POST' },
-    
+    { path: '/api/auth/activate', method: 'POST' },
+    { path: '/api/auth/reset-password', method: 'POST' },
 ];
 
 

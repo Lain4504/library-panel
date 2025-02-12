@@ -50,7 +50,7 @@ class AuthController {
 
     async activateAccount(req, res) {
         try {
-            const { token } = req.params;
+            const { token } = req.body;
             await authService.activateAccount(token);
             res.json({ message: 'Account activated successfully' });
         } catch (error) {
@@ -88,9 +88,8 @@ class AuthController {
 
     async resetPassword(req, res) {
         try {
-            const { token } = req.params;
-            const { newPassword, confirmPassword } = req.body;
-            
+            const { token, newPassword, confirmPassword } = req.body;
+            console.log(token, newPassword, confirmPassword);
             const result = await authService.resetPassword(token, newPassword, confirmPassword);
             res.json(result);
         } catch (error) {
@@ -117,4 +116,4 @@ class AuthController {
     
 }
 
-module.exports = new AuthController(); 
+module.exports = new AuthController();
