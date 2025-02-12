@@ -1,13 +1,33 @@
-import { Button, Form, Input } from 'antd';
-import { Link } from 'react-router-dom';
+
+import { Button, Form, Input, message } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
 import Accounts from '../Accounts/Accounts';
-const onFinish = (values) => {
-  console.log('Success:', values);
-};
-const onFinishFailed = (errorInfo) => {
-  console.log('Failed:', errorInfo);
-};
+import { authApi } from '../../api/authApi';
+
 function LoginForm() {
+  const navigate = useNavigate();
+  const onFinish = async (values) => {
+    try {
+      const response = await authApi.login(values.email, values.password);
+      console.log('Login successful:', response);
+      localStorage.setItem('accessToken', response.tokens.accessToken);
+      localStorage.setItem('refreshToken', response.tokens.refreshToken);
+      localStorage.setItem('username', response.user.username);
+      message.success("Đăng nhập thành công!");
+      navigate("/");
+    } catch (error) {
+      console.error('Login failed:', error);
+      if (error.response && error.response.data.message) {
+        message.error(error.response.data.message); 
+      } else {
+        message.error("Có lỗi xảy ra, vui lòng thử lại!");
+      }
+    }
+  };
+
+  const onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo);
+  };
   return (
     <>
       <Form
@@ -32,31 +52,39 @@ function LoginForm() {
           <h1 className="text-[1.5rem] font-bold">Log In</h1>
         </Form.Item>
         <Form.Item
+          name={'email'}
           label={null}
-          name="username"
           rules={[
             {
               required: true,
-              message: 'Please input your username!',
+              message: "Email is required",
             },
+            {
+              pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+              message: "Email is not valid!"
+            }
           ]}
+          className='w-full'
         >
-          <Input placeholder='Username'/>
+          <Input placeholder='Enter your email' />
         </Form.Item>
 
         <Form.Item
           label={null}
-          name="password"
+          name={'password'}
           rules={[
             {
               required: true,
-              message: 'Please input your password!',
+              message: "Password is required"
             },
+            {
+              pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/,
+              message: "Mật khẩu phải có ít nhất 8 ký tự, gồm chữ và số!"
+            }
           ]}
         >
-          <Input.Password placeholder='Password'/>
+          <Input.Password placeholder='Password' />
         </Form.Item>
-
 
         <Form.Item label={null}>
           <Button type="primary" danger className='w-full' htmlType='submit'>
@@ -72,19 +100,20 @@ function LoginForm() {
           <div className='flex items-center justify-center mt-[20px]'>
             <div className='border-[1px] border-[#ddd] w-full'></div>
             <span className='text-[0.8rem]'>Or</span>
-            <div  className='border-[1px] border-[#ddd] w-full'></div>
+            <div className='border-[1px] border-[#ddd] w-full'></div>
           </div>
-        </Form.Item> 
+        </Form.Item>
 
         <Form.Item label={null}>
           <Accounts />
         </Form.Item>
 
         <Form.Item label={null}>
-          <span>Don’t have an account?<Link to="/signin" className='ml-[5px]'>Sign Up</Link></span>
+          <span>Dont have an account?<Link to="/register" className='ml-[5px]'>Sign Up</Link></span>
         </Form.Item>
       </Form>
     </>
   )
 }
+
 export default LoginForm;

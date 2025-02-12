@@ -1,13 +1,13 @@
-import Header from "./components/Header/Header";
-
-
-
+import React from 'react';
+import { UserProvider } from './context/UserContext';
+import AllRoutes from "./routes/AllRoutes";
+import 'antd/dist/reset.css';
 
 function App() {
   return (
-    <>
-        <Header />
-    </>
+    <UserProvider>
+      <AllRoutes />
+    </UserProvider>
   )
 }
 
