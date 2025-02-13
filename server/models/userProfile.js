@@ -33,7 +33,6 @@ const userProfileSchema = new mongoose.Schema({
 
     avatar: {
         type: String,
-        default: 'no-avatar.jpg',
         required: false
     },
 
@@ -41,4 +40,4 @@ const userProfileSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('UserProfile', userProfileSchema); 
+module.exports = mongoose.model('UserProfile', userProfileSchema);

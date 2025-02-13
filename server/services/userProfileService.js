@@ -10,9 +10,15 @@ class UserProfileService {
         if (!existingProfile) {
             throw new Error(`User profile with ID ${userId} not found`);
         }
+    
+        // Check if there is an avatar file
+        if (userProfileData.avatar) {
+            userProfileData.avatar = Buffer.from(userProfileData.avatar, 'base64').toString('base64');
+        }
+    
         return await UserProfileRepository.update(userId, userProfileData);
     }
-
+    
 
     async deleteUserProfile(userId) {
         const existingProfile = await UserProfileRepository.findByUserId(userId);
@@ -22,7 +28,6 @@ class UserProfileService {
         return await UserProfileRepository.deleteByUserId(userId);
     }
 
-    
     async getUserProfileByUserId(userId) {
         const userProfile = await UserProfileRepository.findByUserId(userId);
         if (!userProfile) {
