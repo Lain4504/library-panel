@@ -12,7 +12,7 @@ const bookSchema = new mongoose.Schema({
     trim: true
   },
   categoryName: {
-    type: String,
+    type: [String],
     required: true,
     trim: true
   },
@@ -55,4 +55,4 @@ bookSchema.pre('save', function(next) {
 
 const Book = mongoose.model('Book', bookSchema);
 
-module.exports = Book; 
+module.exports = Book;

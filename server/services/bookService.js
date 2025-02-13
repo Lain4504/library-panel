@@ -20,6 +20,14 @@ class BookService {
   async deleteBook(bookId) {
     return await bookRepository.delete(bookId);
   }
+
+  async searchBooksByCategory(categories) {
+    return await bookRepository.findByCategories(categories);
+  }
+
+  async searchBooksByTitle(title) {
+    return await bookRepository.findByTitle(title);
+  }
 }
 
 module.exports = new BookService();

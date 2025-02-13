@@ -21,25 +21,34 @@ class BookRepository {
   async delete(bookId) {
     return await Book.findByIdAndDelete(bookId);
   }
+
   async findAll(page = 1, size = 10, sortField = 'createdAt') {
-          const skip = (page - 1) * size;
-          
-          const [data, total] = await Promise.all([
-            Book.find()
-                  .sort({ [sortField]: 1 })
-                  .skip(skip)
-                  .limit(size),
-                  Book.countDocuments()
-          ]);
-  
-          return {
-              data,
-              totalElements: total,
-              totalPages: Math.ceil(total / size),
-              currentPage: page,
-              currentSize: size
-          };
-      }
+    const skip = (page - 1) * size;
+
+    const [data, total] = await Promise.all([
+      Book.find()
+        .sort({ [sortField]: 1 })
+        .skip(skip)
+        .limit(size),
+      Book.countDocuments()
+    ]);
+
+    return {
+      data,
+      totalElements: total,
+      totalPages: Math.ceil(total / size),
+      currentPage: page,
+      currentSize: size
+    };
+  }
+
+  async findByCategories(categories) {
+    return await Book.find({ categoryName: { $in: categories } });
+  }
+
+  async findByTitle(title) {
+    return await Book.find({ title: new RegExp(title, 'i') });
+  }
 }
 
 module.exports = new BookRepository();
