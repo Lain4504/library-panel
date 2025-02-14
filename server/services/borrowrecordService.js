@@ -1,5 +1,6 @@
 const borrowRecordRepo = require('../repositories/borrowrecordRepository');
 const Book = require('../models/Book');
+const notificationService = require('../services/NotificationService');
 
 class BorrowRecordService {
   async requestBorrowBook(userId, bookId) {
@@ -13,7 +14,7 @@ class BorrowRecordService {
   async approveOrRejectBorrowRequest(id, status) {
     const borrowRequest = await borrowRecordRepo.findBorrowRequestById(id);
     if (!borrowRequest) throw new Error('Yêu cầu không tồn tại');
-
+  
     if (status === 'approved') {
       const book = await Book.findById(borrowRequest.bookId);
       if (!book || book.leftBook <= 0) throw new Error('Không thể duyệt, sách đã hết');
@@ -22,8 +23,13 @@ class BorrowRecordService {
       book.borrowBook += 1;
       await book.save();
     }
-
-    return await borrowRecordRepo.updateBorrowRequestStatus(id, status);
+  
+    const updatedRequest = await borrowRecordRepo.updateBorrowRequestStatus(id, status);
+  
+    // Gửi thông báo cho user
+    await notificationService.notifyBorrowStatus(borrowRequest.userId, borrowRequest._id, status);
+  
+    return updatedRequest;
   }
 
   async returnBook(id) {
