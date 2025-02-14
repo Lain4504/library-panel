@@ -49,6 +49,21 @@ class BorrowRecordService {
   async getUserBorrowHistory(userId) {
     return await borrowRecordRepo.findBorrowRequestsByUser(userId);
   }
+  async getBorrowRecordDetail(borrowRecordId) {
+    const borrowRecord = await borrowRecordRepo.getBorrowRecordDetail(borrowRecordId);
+    if (!borrowRecord) {
+      throw new Error('Không tìm thấy yêu cầu mượn sách.');
+    }
+
+    return {
+      email: borrowRecord.userId.email,
+      bookTitle: borrowRecord.bookId.title,
+      borrowDate: borrowRecord.borrowDate,
+      dueDate: borrowRecord.dueDate,
+      returnDate: borrowRecord.returnDate || 'Chưa trả',
+      status: borrowRecord.status
+    };
+  }
 }
 
 module.exports = new BorrowRecordService();

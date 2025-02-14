@@ -38,6 +38,16 @@ class BorrowRecordController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  async getBorrowRecordDetail(req, res) {
+    try {
+      const result = await borrowRecordService.getBorrowRecordDetail(req.params.id);
+      res.status(200).json({ detail: result });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+  
 }
 
 module.exports = new BorrowRecordController();

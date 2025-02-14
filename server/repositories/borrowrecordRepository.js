@@ -21,6 +21,12 @@ class BorrowRecordRepository {
   async updateReturnDate(id) {
     return await BorrowRecord.findByIdAndUpdate(id, { status: 'returned', returnDate: new Date() }, { new: true });
   }
+  async getBorrowRecordDetail(borrowRecordId) {
+    return await BorrowRecord.findById(borrowRecordId)
+      .populate('userId', 'email') // Lấy email từ bảng User
+      .populate('bookId', 'title') // Lấy title từ bảng Book
+      .exec();
+  }
 }
 
 module.exports = new BorrowRecordRepository();
