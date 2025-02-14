@@ -5,9 +5,6 @@ const authorRepository = {
   create: async (data) => {
     return Author.create(data);
   },
-  findAll: async () => {
-    return Author.find().populate('publisher');
-  },
   findById: async (id) => {
     return Author.findById(id).populate('publisher');
   },
@@ -16,6 +13,25 @@ const authorRepository = {
   },
   delete: async (id) => {
     return Author.findByIdAndDelete(id);
+  },
+  findAllPaginated: async (page, size, sortField) => {
+    const skip = (page - 1) * size;
+    const total = await Author.countDocuments();
+
+    const authors = await Author.find()
+        .sort({ [sortField]: 1 })
+        .skip(skip)
+        .limit(size);
+
+    return {
+      data: authors,
+      meta: {
+        total,
+        page,
+        size,
+        totalPages: Math.ceil(total / size),
+      },
+    };
   },
 };
 

@@ -8,10 +8,6 @@ const authorSchema = new mongoose.Schema({
     bio: {
         type: String,
     },
-    publisher: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Publisher',
-    },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Author', authorSchema);

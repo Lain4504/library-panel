@@ -1,6 +1,6 @@
 const borrowRecordRepo = require('../repositories/borrowrecordRepository');
   const Book = require('../models/book');
-  const notificationService = require('../services/NotificationService');
+  const notificationService = require('./notificationService');
 
   class BorrowRecordService {
     async requestBorrowBook(userId, bookId) {

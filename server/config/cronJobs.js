@@ -1,6 +1,6 @@
 const cron = require('node-cron');
 const borrowRecordRepo = require('../repositories/borrowrecordRepository');
-const notificationService = require('../services/NotificationService');
+const notificationService = require('../services/notificationService');
 
 cron.schedule('0 9 * * *', async () => {
   console.log('Run cron job to send reminder notification...');

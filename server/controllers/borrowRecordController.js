@@ -1,4 +1,4 @@
-const borrowRecordService = require('../services/borrowrecordService');
+const borrowRecordService = require('../services/borrowRecordService');
 
     class BorrowRecordController {
       async requestBorrowBook(req, res) {
