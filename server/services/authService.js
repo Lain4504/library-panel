@@ -309,6 +309,39 @@ class AuthService {
     async getAllUsers(page, size, sortField) {
         return await userRepository.findAll(page, size, sortField);
     }
+    
+    async updateUserRole(userId, role) {
+        const validRoles = ['user', 'admin'];
+        if (!validRoles.includes(role)) {
+            throw new Error('Invalid role');
+        }
+
+        const user = await userRepository.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.role = role;
+        await user.save();
+
+        return { message: 'User role updated successfully' };
+    }
+    async updateUserStatus(userId, status) {
+        const validStatus = ['active', 'inactive', 'deleted'];
+        if (!validStatus.includes(status)) {
+            throw new Error('Invalid status');
+        }
+
+        const user = await userRepository.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.status = status;
+        await user.save();
+
+        return { message: 'User status updated successfully' };
+    }
 }
 
-module.exports = new AuthService(); 
+module.exports = new AuthService();

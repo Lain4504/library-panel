@@ -12,5 +12,6 @@ router.post('/reset-password-email', authController.sendResetPasswordEmail);
 router.post('/change-password', protect, authController.changePassword);
 router.post('/reset-password', authController.resetPassword);
 router.get('/get-all-users', protect, authorize(['admin']), authController.getAllUsers);
-
+router.put('/assign-role/:id', protect, authorize(['admin']), authController.updateUserRole);
+router.put('/update-user-status/:id', protect, authorize(['admin']), authController.updateUserStatus);
 module.exports = router;

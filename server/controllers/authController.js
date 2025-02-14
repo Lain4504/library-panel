@@ -1,4 +1,5 @@
 const authService = require('../services/authService');
+const bookService = require('../services/bookService'); // Add this line
 
 class AuthController {
     // Register new user
@@ -113,7 +114,26 @@ class AuthController {
             res.status(400).json({ message: error.message });
         }
     }
-    
+    async updateUserRole(req, res) {
+        try {
+            const { id } = req.params;
+            const { role } = req.body;
+            const result = await authService.updateUserRole(id, role);
+            res.json(result);
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
+    }
+    async updateUserStatus(req, res) {
+        try {
+            const { id } = req.params;
+            const { status } = req.body;
+            const result = await authService.updateUserStatus(id, status);
+            res.json(result);
+        } catch (error) {
+            res.status(400).json({ message: error.message });
+        }
+    }
 }
 
 module.exports = new AuthController();
