@@ -7,7 +7,7 @@ const notificationRepo = require('../repositories/notificationRepository');
         const borrowRecord = await borrowRecordRepo.findBorrowRequestById(borrowRecordId);
         if (!borrowRecord) return;
 
-        const book = await bookRepo.findBookById(borrowRecord.bookId);
+        const book = await bookRepo.findById(borrowRecord.bookId);
         const bookTitle = book ? book.title : 'a book';
 
         let message = '';
@@ -32,7 +32,7 @@ const notificationRepo = require('../repositories/notificationRepository');
         const borrowRecord = await borrowRecordRepo.findBorrowRequestById(borrowRecordId);
         if (!borrowRecord || borrowRecord.status !== 'approved') return;
 
-        const book = await bookRepo.findBookById(borrowRecord.bookId);
+        const book = await bookRepo.findById(borrowRecord.bookId);
         const bookTitle = book ? book.title : 'a book';
 
         const dueDate = new Date(borrowRecord.dueDate);
