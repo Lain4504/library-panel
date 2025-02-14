@@ -1,5 +1,4 @@
 const authService = require('../services/authService');
-const bookService = require('../services/bookService'); // Add this line
 
 class AuthController {
     // Register new user
