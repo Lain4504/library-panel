@@ -1,4 +1,4 @@
-const Book = require('../models/Book');
+const Book = require('../models/book');
 
 class BookRepository {
   async create(bookData) {
@@ -7,19 +7,19 @@ class BookRepository {
   }
 
   async findById(bookId) {
-    return await Book.findById(bookId);
+    return Book.findById(bookId);
   }
 
   async findAll() {
-    return await Book.find();
+    return Book.find();
   }
 
   async update(bookId, updateData) {
-    return await Book.findByIdAndUpdate(bookId, updateData, { new: true });
+    return Book.findByIdAndUpdate(bookId, updateData, {new: true});
   }
 
   async delete(bookId) {
-    return await Book.findByIdAndDelete(bookId);
+    return Book.findByIdAndDelete(bookId);
   }
 
   async findAll(page = 1, size = 10, sortField = 'createdAt') {
@@ -43,11 +43,11 @@ class BookRepository {
   }
 
   async findByCategories(categories) {
-    return await Book.find({ categoryName: { $in: categories } });
+    return Book.find({categoryName: {$in: categories}});
   }
 
   async findByTitle(title) {
-    return await Book.find({ title: new RegExp(title, 'i') });
+    return Book.find({title: new RegExp(title, 'i')});
   }
 }
 

@@ -5,7 +5,7 @@ class UserProfileController {
         try {
             const userProfileData = req.body;
     
-            // Kiểm tra nếu có file tải lên
+            // Check if the request contains an avatar image
             if (req.file) {
                 userProfileData.avatar = req.file.buffer.toString('base64'); // Chuyển thành base64
             }

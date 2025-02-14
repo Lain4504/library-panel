@@ -1,4 +1,4 @@
-const Notification = require('../models/Notification');
+const Notification = require('../models/notification');
 
 class NotificationRepository {
   async createNotification(userId, message) {
@@ -7,11 +7,11 @@ class NotificationRepository {
   }
 
   async getUserNotifications(userId) {
-    return await Notification.find({ userId }).sort({ createdAt: -1 });
+    return Notification.find({userId}).sort({createdAt: -1});
   }
 
   async markAsRead(notificationId) {
-    return await Notification.findByIdAndUpdate(notificationId, { status: 'read' }, { new: true });
+    return Notification.findByIdAndUpdate(notificationId, {status: 'read'}, {new: true});
   }
 }
 

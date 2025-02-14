@@ -13,7 +13,7 @@ class NotificationController {
   async markNotificationAsRead(req, res) {
     try {
       const result = await notificationService.markNotificationAsRead(req.params.id);
-      res.status(200).json({ message: 'Thông báo đã được đánh dấu là đã đọc.', result });
+      res.status(200).json({ message: 'Notification has been marked as read.', result });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }

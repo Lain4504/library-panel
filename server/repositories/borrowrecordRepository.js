@@ -1,4 +1,4 @@
-const BorrowRecord = require('../models/BorrowRecord');
+const BorrowRecord = require('../models/borrowRecord');
 
 class BorrowRecordRepository {
   async createBorrowRequest(userId, bookId) {
@@ -7,24 +7,24 @@ class BorrowRecordRepository {
   }
 
   async findBorrowRequestById(id) {
-    return await BorrowRecord.findById(id);
+    return BorrowRecord.findById(id);
   }
 
   async findBorrowRequestsByUser(userId) {
-    return await BorrowRecord.find({ userId }).populate('bookId', 'title author').sort({ createdAt: -1 });
+    return BorrowRecord.find({userId}).populate('bookId', 'title author').sort({createdAt: -1});
   }
 
   async updateBorrowRequestStatus(id, status) {
-    return await BorrowRecord.findByIdAndUpdate(id, { status }, { new: true });
+    return BorrowRecord.findByIdAndUpdate(id, {status}, {new: true});
   }
 
   async updateReturnDate(id) {
-    return await BorrowRecord.findByIdAndUpdate(id, { status: 'returned', returnDate: new Date() }, { new: true });
+    return BorrowRecord.findByIdAndUpdate(id, {status: 'returned', returnDate: new Date()}, {new: true});
   }
   async getBorrowRecordDetail(borrowRecordId) {
     return await BorrowRecord.findById(borrowRecordId)
-      .populate('userId', 'email') // Lấy email từ bảng User
-      .populate('bookId', 'title') // Lấy title từ bảng Book
+      .populate('userId', 'email') // Get email from User collection
+      .populate('bookId', 'title') // Get title from Book collection
       .exec();
   }
 }

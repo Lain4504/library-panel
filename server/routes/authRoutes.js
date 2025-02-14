@@ -3,7 +3,6 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
-
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.get('/get-my-info', protect, authController.getMyInfo);
@@ -14,4 +13,5 @@ router.post('/reset-password', authController.resetPassword);
 router.get('/get-all-users', protect, authorize(['admin']), authController.getAllUsers);
 router.put('/assign-role/:id', protect, authorize(['admin']), authController.updateUserRole);
 router.put('/update-user-status/:id', protect, authorize(['admin']), authController.updateUserStatus);
+
 module.exports = router;

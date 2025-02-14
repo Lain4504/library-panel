@@ -4,6 +4,8 @@ const path = require('path');
 const connectDB = require('./config/db');
 const routes = require('./routes');
 const cors = require('cors');
+// Cron jobs for sending reminder push notifications
+require('./config/cronJobs');
 
 // Config dotenv
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -35,4 +37,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-require('./config/cronJobs');
