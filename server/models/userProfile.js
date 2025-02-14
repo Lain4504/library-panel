@@ -39,5 +39,9 @@ const userProfileSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
-
+userProfileSchema.method('toJSON', function() {
+    const { _id, ...object } = this.toObject();
+    object.id = _id;
+    return object;
+});
 module.exports = mongoose.model('UserProfile', userProfileSchema);

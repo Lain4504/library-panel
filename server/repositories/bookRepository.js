@@ -10,10 +10,6 @@ class BookRepository {
     return Book.findById(bookId);
   }
 
-  async findAll() {
-    return Book.find();
-  }
-
   async update(bookId, updateData) {
     return Book.findByIdAndUpdate(bookId, updateData, {new: true});
   }

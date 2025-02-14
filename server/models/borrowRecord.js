@@ -24,7 +24,11 @@ const borrowRecordSchema = new mongoose.Schema({
     default: 'pending'
   }
 }, { timestamps: true });
-
+borrowRecordSchema.method('toJSON', function() {
+  const { _id, ...object } = this.toObject();
+  object.id = _id;
+  return object;
+});
 const BorrowRecord = mongoose.model('BorrowRecord', borrowRecordSchema);
 
 module.exports = BorrowRecord;

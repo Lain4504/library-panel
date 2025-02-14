@@ -12,5 +12,9 @@ const publisherSchema = new mongoose.Schema({
     type: Number,
   },
 }, { timestamps: true });
-
+publisherSchema.method('toJSON', function() {
+  const { _id, ...object } = this.toObject();
+  object.id = _id;
+  return object;
+});
 module.exports = mongoose.model('Publisher', publisherSchema);

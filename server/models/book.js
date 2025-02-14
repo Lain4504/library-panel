@@ -11,6 +11,11 @@ const bookSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  publisher: {
+    type: String,
+    required: true,
+    trim: true
+  },
   categoryName: {
     type: [String],
     required: true,
@@ -52,7 +57,11 @@ bookSchema.pre('save', function(next) {
   this.leftBook = this.totalBook - this.borrowBook;
   next();
 });
-
+bookSchema.method('toJSON', function() {
+  const { _id, ...object } = this.toObject();
+  object.id = _id;
+  return object;
+});
 const Book = mongoose.model('Book', bookSchema);
 
 module.exports = Book;

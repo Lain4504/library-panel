@@ -20,7 +20,11 @@ const notificationSchema = new mongoose.Schema({
     default: Date.now
   }
 });
-
+notificationSchema.method('toJSON', function() {
+  const { _id, ...object } = this.toObject();
+  object.id = _id;
+  return object;
+});
 const Notification = mongoose.model('Notification', notificationSchema);
 
 module.exports = Notification;
