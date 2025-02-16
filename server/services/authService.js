@@ -7,7 +7,7 @@ class AuthService {
         return jwt.sign(
             { userId },
             process.env.JWT_SECRET,
-            { expiresIn: '15m' }
+            { expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME }
         );
     }
 
@@ -15,7 +15,7 @@ class AuthService {
         return jwt.sign(
             { userId },
             process.env.JWT_REFRESH_SECRET,
-            { expiresIn: '1d' }
+            { expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME}
         );
     }
 
