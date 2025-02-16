@@ -344,7 +344,7 @@ class AuthService {
     }
     async refreshAccessToken(accessToken) {
         try {
-            const storedToken = await userRepository.findRefreshTokenByAccessToken(accessToken);
+            const storedToken = await userRepository.findUserTokenByAccessToken(accessToken);
 
             if (!storedToken || !storedToken.refreshToken) {
                 throw new Error('Refresh token not found or is invalid');
@@ -360,7 +360,7 @@ class AuthService {
 
             const newAccessToken = this.#generateAccessToken(userId);
 
-            await userRepository.updateToken(userId, 'access', newAccessToken);
+            await userRepository.updateToken(userId,newAccessToken);
 
             return {
                 accessToken: newAccessToken

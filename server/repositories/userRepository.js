@@ -18,14 +18,6 @@ class UserRepository {
         return UserToken.create(tokenData);
     }
 
-    async findTokenByUserId(userId, type) {
-        return UserToken.findOne({ userId, type });
-    }
-
-    async deleteToken(userId, type) {
-        return UserToken.deleteOne({ userId, type });
-    }
-
     async findByEmailWithPassword(email) {
         return User.findOne({ email }).select('+password');
     }
@@ -95,14 +87,14 @@ class UserRepository {
             currentSize: size
         };
     }
-    async updateToken(userId, type, newToken) {
+    async updateToken(userId, newToken) {
         return UserToken.findOneAndUpdate(
-            { userId, type },
+            { userId },
             { accessToken: newToken },
             { new: true }
         );
     }
-    async findRefreshTokenByAccessToken(accessToken) {
+    async findUserTokenByAccessToken(accessToken) {
         return UserToken.findOne({ accessToken });
     }
 }
