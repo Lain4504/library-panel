@@ -342,6 +342,34 @@ class AuthService {
 
         return { message: 'User status updated successfully' };
     }
+    async refreshAccessToken(accessToken) {
+        try {
+            const storedToken = await userRepository.findRefreshTokenByAccessToken(accessToken);
+
+            if (!storedToken || !storedToken.refreshToken) {
+                throw new Error('Refresh token not found or is invalid');
+            }
+
+            const decoded = jwt.verify(storedToken.refreshToken, process.env.JWT_REFRESH_SECRET);
+
+            if (!decoded) {
+                throw new Error('Refresh token is invalid or expired');
+            }
+
+            const userId = decoded.userId;
+
+            const newAccessToken = this.#generateAccessToken(userId);
+
+            await userRepository.updateToken(userId, 'access', newAccessToken);
+
+            return {
+                accessToken: newAccessToken
+            };
+        } catch (error) {
+            console.error('Error refreshing access token:', error.message);
+            throw new Error('Unable to refresh access token');
+        }
+    }
 }
 
 module.exports = new AuthService();

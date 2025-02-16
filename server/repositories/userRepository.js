@@ -1,3 +1,4 @@
+
 const User = require('../models/user');
 const UserToken = require('../models/userToken');
 
@@ -93,6 +94,16 @@ class UserRepository {
             currentPage: page,
             currentSize: size
         };
+    }
+    async updateToken(userId, type, newToken) {
+        return UserToken.findOneAndUpdate(
+            { userId, type },
+            { accessToken: newToken },
+            { new: true }
+        );
+    }
+    async findRefreshTokenByAccessToken(accessToken) {
+        return UserToken.findOne({ accessToken });
     }
 }
 

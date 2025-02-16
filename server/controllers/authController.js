@@ -133,6 +133,25 @@ class AuthController {
             res.status(400).json({ message: error.message });
         }
     }
+    async refreshAccessToken(req, res) {
+        try {
+            const { accessToken } = req.body;
+
+            if (!accessToken) {
+                return res.status(400).json({ message: 'AccessToken token is required' });
+            }
+
+            const tokens = await authService.refreshAccessToken(accessToken);
+
+            res.status(200).json(tokens);
+
+        } catch (error) {
+            res.status(401).json({
+                message: error.message || 'Error refreshing access token'
+            });
+        }
+
+    }
 }
 
 module.exports = new AuthController();
