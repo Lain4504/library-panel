@@ -1,4 +1,6 @@
 const authService = require('../services/authService');
+const jwt = require('jsonwebtoken');
+const userRepository = require('../repositories/userRepository');
 
 class AuthController {
     // Register new user
@@ -150,7 +152,44 @@ class AuthController {
                 message: error.message || 'Error refreshing access token'
             });
         }
+    }
+    async googleLogin(req, res) {
+        try {
+            const user = req.user;
 
+            const accessToken = jwt.sign(
+                { userId: user.id },
+                process.env.JWT_SECRET,
+                { expiresIn: process.env.JWT_ACCESS_EXPIRE_TIME }
+            );
+
+            const refreshToken = jwt.sign(
+                { userId: user.id },
+                process.env.JWT_REFRESH_SECRET,
+                { expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME }
+            );
+
+            // Save tokens to the database
+            await userRepository.saveToken({
+                userId: user.id,
+                accessToken,
+                refreshToken,
+            });
+
+            res.json({
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    role: user.role || 'user',
+                },
+                tokens: {
+                    accessToken,
+                    refreshToken,
+                },
+            });
+        } catch (error) {
+            res.status(500).json({ message: `Google Login Error: ${error.message}` });
+        }
     }
 }
 
