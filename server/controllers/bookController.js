@@ -53,7 +53,7 @@ class BookController {
       const sortField = ['createdAt', 'title', 'updatedAt'].includes(req.query.field)
           ? req.query.field
           : 'createdAt';
-      const searchText = req.params.searchText || '';
+      const searchText = req.query.searchText || '';
 
       const result = await bookService.getAllBooks(page, size, sortField, searchText);
       res.json(result);

@@ -7,7 +7,7 @@ router.post('/', protect, authorize(['admin']), bookController.createBook);
 router.get('/:id', bookController.getBookById);
 router.put('/:id', protect, authorize(['admin']), bookController.updateBook);
 router.delete('/:id', protect, authorize(['admin']), bookController.deleteBook);
-router.get('/get-all/:searchText', bookController.getAllBooks);
+router.get('/', bookController.getAllBooks);
 router.get('/search/category', bookController.searchBooksByCategory);
 router.get('/search/title', bookController.searchBooksByTitle);
 module.exports = router;

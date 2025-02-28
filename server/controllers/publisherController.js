@@ -14,7 +14,7 @@ const publisherController = {
             const page = Math.max(1, parseInt(req.query.page) || 1);
             const size = Math.min(100, Math.max(1, parseInt(req.query.size) || 10));
             const sortField = req.query.sortField || 'createdAt';
-            const searchText = req.params.searchText || '';
+            const searchText = req.query.searchText || '';
 
             const result = await publisherService.getAllPublishers(page, size, sortField, searchText);
 

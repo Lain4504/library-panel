@@ -107,7 +107,7 @@ class AuthController {
             const sortField = ['createdAt', 'email', 'updatedAt'].includes(req.query.field)
                 ? req.query.field
                 : 'createdAt';
-            const searchText = req.params.searchText || '';
+            const searchText = req.query.searchText || '';
 
             const result = await authService.getAllUsers(page, size, sortField, searchText);
             res.json(result);

@@ -44,7 +44,7 @@ class CategoryController {
             const sortField = ['createdAt', 'name', 'updatedAt'].includes(req.query.field)
                 ? req.query.field
                 : 'createdAt';
-            const searchText = req.params.searchText || '';
+            const searchText = req.query.searchText || '';
 
             const result = await categoryService.getAllCategories(page, size, sortField, searchText);
             res.json(result);
