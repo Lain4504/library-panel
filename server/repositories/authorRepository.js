@@ -13,11 +13,15 @@ const authorRepository = {
     delete: async (id) => {
         return Author.findByIdAndDelete(id);
     },
-    findAllPaginated: async (page, size, sortField) => {
+    findAllPaginated: async (page, size, sortField, searchText) => {
         const skip = (page - 1) * size;
-        const total = await Author.countDocuments();
+        const total = await Author.countDocuments({
+            name: new RegExp(searchText, 'i')
+        });
 
-        const authors = await Author.find()
+        const authors = await Author.find({
+            name: new RegExp(searchText, 'i')
+        })
             .sort({[sortField]: 1})
             .skip(skip)
             .limit(size);

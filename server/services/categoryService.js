@@ -27,8 +27,8 @@ class CategoryService {
         return await categoryRepository.findById(id);
     }
 
-    async getAllCategories(page, size, sortField) {
-        return await categoryRepository.findAll(page, size, sortField);
+    async getAllCategories(page, size, sortField, searchText) {
+        return await categoryRepository.findAll(page, size, sortField, searchText);
     }
 }
 

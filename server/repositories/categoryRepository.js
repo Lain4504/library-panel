@@ -39,12 +39,15 @@ class CategoryRepository {
         return category;
     }
 
-    async findAll(page = 1, size = 10, sortField = 'createdAt') {
+    async findAll(page = 1, size = 10, sortField = 'createdAt', searchText = '') {
         const skip = (page - 1) * size;
 
         const [data, total] = await Promise.all([
-            Category.find().sort({[sortField]: 1}).skip(skip).limit(size),
-            Category.countDocuments()
+            Category.find({ name: new RegExp(searchText, 'i') })
+                .sort({ [sortField]: 1 })
+                .skip(skip)
+                .limit(size),
+            Category.countDocuments({ name: new RegExp(searchText, 'i') })
         ]);
 
         return {

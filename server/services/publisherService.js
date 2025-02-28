@@ -11,8 +11,8 @@ class PublisherService {
     async getPublisherById(publisherId) {
         return await publisherRepository.findById(publisherId);
     }
-    async getAllPublishers(page, size, sortField) {
-        return await publisherRepository.findAllPaginated(page, size, sortField);
+    async getAllPublishers(page, size, sortField, searchText) {
+        return await publisherRepository.findAllPaginated(page, size, sortField, searchText);
     }
     async updatePublisher(publisherId, updateData) {
         if (updateData.name) {

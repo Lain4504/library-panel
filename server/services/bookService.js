@@ -13,8 +13,8 @@ class BookService {
     return await bookRepository.findById(bookId);
   }
 
-  async getAllBooks(page, size, sortField) {
-    return await bookRepository.findAll(page, size, sortField);
+  async getAllBooks(page, size, sortField, searchText) {
+    return await bookRepository.findAll(page, size, sortField, searchText);
   }
 
   async updateBook(bookId, updateData) {

@@ -13,8 +13,8 @@ class AuthorService {
         return await authorRepository.findById(authorId);
     }
 
-    async getAllAuthors(page, size, sortField) {
-        return await authorRepository.findAllPaginated(page, size, sortField);
+    async getAllAuthors(page, size, sortField, searchText) {
+        return await authorRepository.findAllPaginated(page, size, sortField, searchText);
     }
 
     async update(authorId, updateData) {
