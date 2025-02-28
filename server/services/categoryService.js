@@ -2,10 +2,20 @@ const categoryRepository = require('../repositories/categoryRepository');
 
 class CategoryService {
     async createCategory(categoryData) {
+        const existingCategory = await categoryRepository.findByName(categoryData.name);
+        if (existingCategory) {
+            throw new Error('Category with this name already exists');
+        }
         return await categoryRepository.create(categoryData);
     }
 
     async updateCategory(id, categoryData) {
+        if (categoryData.name) {
+            const existingCategory = await categoryRepository.findByName(categoryData.name);
+            if (existingCategory && existingCategory._id.toString() !== id) {
+                throw new Error('Category with this name already exists');
+            }
+        }
         return await categoryRepository.update(id, categoryData);
     }
 
@@ -22,4 +32,4 @@ class CategoryService {
     }
 }
 
-module.exports = new CategoryService(); 
+module.exports = new CategoryService();

@@ -33,6 +33,9 @@ const publisherRepository = {
             },
         };
     },
+    findByName: async (name) => {
+        return Publisher.findOne({ name });
+    },
 };
 
 module.exports = publisherRepository;
