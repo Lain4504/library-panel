@@ -42,8 +42,8 @@ class BookRepository {
         return Book.find({categoryName: {$in: categories}});
     }
 
-    async findByTitle(title) {
-        return Book.find({title: new RegExp(title, 'i')});
+    async existByTitle(title) {
+        return Book.findOne({title: title});
     }
 }
 
