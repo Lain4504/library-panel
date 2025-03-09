@@ -2,35 +2,27 @@ import { Select, Input, Table, Pagination, Modal, Button, Alert } from 'antd';
 import { useEffect, useState } from 'react';
 import { categoryApi } from '../../api/categoryApi';
 import { Link, Outlet } from 'react-router-dom';
-import { bookApi } from '../../api/bookApi';
-import AddBook from '../AddBook/AddBook';
-import UpdateBook from '../../components/UpdateBook/UpdateBook';
 
-function BookAdmin() {
-    const [bookUpdate, setBookUpdate] = useState({});
+function CategoryAdmin() {
+
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [books, setBooks] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalBook, setTotalBook] = useState(0);
+    const [totalCategory, setTotalCategory] = useState(0);
     const [pageSize, setPageSize] = useState(5);
-    const [currentBook, setCurrentBook] = useState();
-    const [idBookCurrent, setIdBookCurrent] = useState('');
+    const [currentCategory, setCurrentCategory] = useState();
+    const [idCategoryCurrent, setIdCategoryCurrent] = useState('');
     const [showAlert, setShowAlert] = useState(false);
 
-    const showModal = async (id) => {
-        setIdBookCurrent(id);
-        try {
-            const result = await bookApi.getBookById(id);
-            setCurrentBook(result);
-        } catch (error) {
-            console.log(error)
-        }
+    const showModal = (id, name) => {
+        setIdCategoryCurrent(id);
+        setCurrentCategory(name);
         setIsModalOpen(true);
+
     };
     const handleOk = async () => {
-        console.log(bookUpdate);
         try {
-            const result = await bookApi.updateBook(idBookCurrent, bookUpdate);
+            const result = await categoryApi.updateCategory(idCategoryCurrent, { name: currentCategory });
             if (result) {
                 setShowAlert(true);
                 fetchApi(currentPage);
@@ -46,9 +38,6 @@ function BookAdmin() {
     const handleCancel = () => {
         setIsModalOpen(false);
     };
-    const handleBookUpdate = (updateDataBook) => {
-        setBookUpdate(updateDataBook);
-    }
 
     const columns = [
         {
@@ -56,18 +45,8 @@ function BookAdmin() {
             dataIndex: 'id'
         },
         {
-            title: 'Sản phẩm',
-            dataIndex: ['image', 'title'],
-            render: (_, record) => (
-                <div className='flex items-center gap-x-1 justify-start w-full'>
-                    <img src={record.image} className='w-[60px]' />
-                    <span>{record.title}</span>
-                </div>
-            )
-        },
-        {
-            title: 'Kho',
-            dataIndex: 'totalBook'
+            title: 'Name',
+            dataIndex: 'name',
         },
         {
             title: 'Thao tác',
@@ -77,12 +56,18 @@ function BookAdmin() {
                     <div>
                         <Button type='primary' danger onClick={() => handleDelete(record.id)}>Delete</Button>
                     </div>
-                    <div>
-                        <Button type='primary' onClick={() => showModal(record.id)}>
+                    <div className=''>
+                        <Button type='primary' onClick={() => showModal(record.id, record.name)}>
                             Update
                         </Button>
                         <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText='Update'>
-                            <UpdateBook book={currentBook} onBookUpdate={handleBookUpdate} />
+                            <div className='flex flex-col gap-y-4'>
+                                <h1 className='text-center text-[1.4rem]'>Update Category</h1>
+                                <div>
+                                    <span>Name</span>
+                                    <Input value={currentCategory} onChange={(e) => setCurrentCategory(e.target.value)} />
+                                </div>
+                            </div>
                         </Modal>
                     </div>
                 </div>
@@ -90,7 +75,8 @@ function BookAdmin() {
         },
     ];
     const fetchApiDelete = async (id) => {
-        const result = await bookApi.deleteBook(id);
+        const result = await categoryApi.deleteCategory(id);
+        console.log(result);
         return result;
     }
     const handleDelete = async (id) => {
@@ -105,10 +91,11 @@ function BookAdmin() {
 
     const fetchApi = async (page) => {
         try {
-            const bookList = await bookApi.getAllBook(page, pageSize, 'id');
-            setBooks(bookList.data);
-            setTotalBook(bookList.totalElements);
-            setCurrentPage(bookList.currentPage);
+            const categoryList = await categoryApi.getAllCategories(page, pageSize, 'name');
+            console.log(categoryList);
+            setCategories(categoryList.data);
+            setTotalCategory(categoryList.totalElements);
+            setCurrentPage(categoryList.currentPage);
         } catch (error) {
             console.log(error);
         }
@@ -126,21 +113,6 @@ function BookAdmin() {
     const handleCreate = () => {
 
     }
-    const handleChange = async (e) => {
-        try {
-            const searchBook = [];
-            const result = await bookApi.searchBookByTitle(e.target.value);
-            if (result) {
-                searchBook.push(result);
-                console.log(searchBook);
-                setBooks(searchBook);
-            } else {
-                fetchApi(currentPage);
-            }
-        } catch (error) {
-            console.error("Lỗi khi tìm kiếm sách:", error);
-        }
-    };
     return (
         <>
             <div className="w-full flex items-center justify-center mt-[50px] ">
@@ -149,20 +121,39 @@ function BookAdmin() {
                 )}
             </div>
             <div className="px-[20px] py-[50px]">
-                <h1 className="text-[1.5rem] font-bold mb-[20px]">Quản lý sách</h1>
-                <div className='flex items-center justify-center'>
+                <h1 className="text-[1.2rem] font-bold mb-[20px]">Quản lý thể loại sách</h1>
+                <div className='flex items-center justify-between'>
+                    <Select
+                        defaultValue={'Tất cả'}
+                        placeholder=""
+                        options={[
+                            {
+                                value: 'Tất cả',
+                                label: 'Tất cả',
+                            },
+                            {
+                                value: 'Admin',
+                                label: 'Admin',
+                            },
+                            {
+                                value: 'Người dùng',
+                                label: 'Người dùng',
+                            },
+                        ]}
+                        className='w-[120px]'
+                    />
                     <div>
-                        <Input placeholder="Tìm kiếm sách theo title..." className='w-[300px] h-[33px]' onChange={handleChange} />
+                        <Input placeholder="Tìm kiếm người dùng theo email..." className='w-[300px] h-[33px]' />;
                     </div>
                 </div>
                 <div className='mt-[10px]'>
-                    <Link to='/admin/book/new-book'><Button type="primary" onClick={handleCreate}>Create</Button></Link>
+                    <Link to='/admin/category/new-category'><Button type="primary" onClick={handleCreate}>Create</Button></Link>
                 </div>
                 <div className='mt-[30px] mb-[40px]'>
-                    <Table columns={columns} dataSource={books} pagination={false} />
+                    <Table columns={columns} dataSource={categories} pagination={false} />
                 </div>
                 <div className='flex items-center justify-center'>
-                    <Pagination current={currentPage} total={totalBook} pageSize={pageSize}
+                    <Pagination current={currentPage} total={totalCategory} pageSize={pageSize}
                         onChange={handlePageChange} />
                 </div>
             </div>
@@ -171,4 +162,4 @@ function BookAdmin() {
     );
 }
 
-export default BookAdmin;
+export default CategoryAdmin;

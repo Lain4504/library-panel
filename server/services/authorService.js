@@ -30,6 +30,7 @@ class AuthorService {
     async delete(authorId) {
         return await authorRepository.delete(authorId);
     }
+
 }
 
 module.exports = new AuthorService();

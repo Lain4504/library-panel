@@ -9,20 +9,35 @@ import UserAdmin from "../pages/UserAdmin/UserAdmin";
 import UserProfile from "../pages/Profiles/UserProfiles";
 import AdminProfile from "../pages/Profiles/AdminProfile";
 import BookAdmin from "../pages/BookAdmin/BookAdmin";
+import CategoryAdmin from "../pages/CategoryAdmin/CategoryAdmin";
+import AddCategory from "../pages/AddCategory/AddCategory";
+import LayoutDefault from "../pages/LayoutDefault/LayoutDefault";
+import Notifications from "../pages/Notifications/Notifications";
+import AddBook from "../pages/AddBook/AddBook";
+import AuthorAdmin from "../pages/AuthorAdmin/AuthorAdmin";
+import PublishAdmin from "../pages/PublisherAdmin/PublishAdmin";
+import AddAuthor from "../pages/AddAuthor/AddAuthor";
+import AddPublisher from "../pages/AddPublisher/AddPublisher";
+import BookDetail from "../pages/BookDetail/BookDetail";
 
 export const routes = [
+
     {
         path: "/",
         element: <Home />,
+    },
+    {
+        path: '/',
+        element: <LayoutDefault />,
         children: [
             {
-                path:"/login",
-                element: <Login/>,
+                path: "/login",
+                element: <Login />,
             },
             {
-                path:"/register",
-                element: <SignUp/>,
-            }, 
+                path: "/register",
+                element: <SignUp />,
+            },
             {
                 path: "/forgot-password",
                 element: <SendEmail />
@@ -38,6 +53,14 @@ export const routes = [
             {
                 path: '/profile',
                 element: <UserProfile />
+            },
+            {
+                path: '/notifications',
+                element: <Notifications />
+            },
+            {
+                path: '/book-detail/:id',
+                element: <BookDetail />
             }
         ]
     },
@@ -52,10 +75,42 @@ export const routes = [
             {
                 path: 'profile',
                 element: <AdminProfile />
-            }, 
+            },
             {
                 path: 'book',
                 element: <BookAdmin />
+            },
+            {
+                path: 'category',
+                element: <CategoryAdmin />,
+            },
+            {
+                path: 'category/new-category',
+                element: <AddCategory />
+            },
+            {
+                path: 'book',
+                element: <BookAdmin />
+            },
+            {
+                path:'book/new-book',
+                element: <AddBook />
+            },
+            {
+                path: 'author',
+                element: <AuthorAdmin />
+            },
+            {
+                path: 'publisher',
+                element: <PublishAdmin />
+            },
+            {
+                path: 'author/new-author',
+                element: <AddAuthor />
+            },
+            {
+                path: 'publisher/new-publisher',
+                element: <AddPublisher />
             }
         ]
     }

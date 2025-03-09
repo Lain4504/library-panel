@@ -1,4 +1,4 @@
-import logo from "../../assets/images/logo.png";
+import logo from "../../assets/images/logo_cam.png";
 import { FaMapMarker } from "react-icons/fa";
 import { CiMail } from "react-icons/ci";
 import { FaPhoneVolume } from "react-icons/fa6";
@@ -8,11 +8,11 @@ import { SiZalo } from "react-icons/si";
 function Footer() {
   return (
     <>
-      <div className="contanier mx-auto px-[6rem] pt-[20px] pb-[50px] bg-[#f5f5f5] flex">
+      <div className="contanier mx-auto px-[150px] pt-[20px] pb-[50px] bg-white flex">
         <div className="flex flex-col justify-center items-start w-[40%] px-[10px] border-r-[1px] border-r-[#ddd]">
-          <div className="flex items-center justify-center mb-[15px]">
-            <img src={logo} className="w-[8rem] mr-[5px]" />
-            <span className="text-[#d2370c] font-bold text-[2rem]">HOKO</span>
+          <div className="flex items-center justify-center mb-[15px] relative">
+            <img src={logo} className="w-[15rem]" />
+            <span className="text-[#d2370c] font-bold text-[2.5rem] absolute top-[50%] left-[75%] translate-y-[-50%]">HOKO</span>
           </div>
           <div className="mb-[15px]">
             <p className="text-[0.9rem]">

@@ -7,7 +7,9 @@ function Home() {
     return (
         <>
             <Header />
-            <Content />
+            <div className="container mx-auto px-[120px] bg-[#f0f0f0]">
+                <Content />
+            </div>
             <Footer />
         </>
     )

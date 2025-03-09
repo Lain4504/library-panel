@@ -1,23 +1,73 @@
-import {Select, Input, Table, Tag, Pagination, Modal, Button} from 'antd';
-import {useEffect, useState} from 'react';
-import {authApi} from '../../api/authApi';
+import { Select, Input, Table, Tag, Pagination, Modal, Button, Alert } from 'antd';
+import { useEffect, useState } from 'react';
+import { authApi } from '../../api/authApi';
 
 function UserAdmin() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [users, setUsers] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalUsers, setTotalUsers] = useState(0);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(5);
+    const [emailCurrent, setEmailCurrent] = useState('');
+    const [roleCurrent, setRoleCurrent] = useState('');
+    const [statusCurrent, setStatusCurrent] = useState('');
+    const [userIdCurrent, setUserIdCurrent] = useState(null);
+    const [showAlert, setShowAlert] = useState(false);
 
-    const showModal = () => {
+    const showModal = (id, email, role, status) => {
+        setUserIdCurrent(id);
+        setRoleCurrent(role);
+        setStatusCurrent(status);
+        setEmailCurrent(email);
         setIsModalOpen(true);
     };
-    const handleOk = () => {
-        setIsModalOpen(false);
+    const handleOk = async () => {
+        try {
+            const resultRole = await authApi.updateRoleUser(userIdCurrent, roleCurrent);
+            const resultStatus = await authApi.updateStatusUser(userIdCurrent, statusCurrent);
+            if (resultRole || resultStatus ) {
+                setShowAlert(true);
+                setIsModalOpen(false);
+                fetchApi(currentPage);
+            }
+            setTimeout(() => {
+                setShowAlert(false);
+            }, 1500)
+        } catch (error) {
+            console.log(error)
+        }
     };
     const handleCancel = () => {
         setIsModalOpen(false);
     };
+    const handleChangeRole = (value) => {
+        setRoleCurrent(value);
+    }
+    const handleChangeStatus = (value) => {
+        setStatusCurrent(value);
+    }
+    const fetchApi = async (page) => {
+        try {
+            const userList = await authApi.getAllUser(page, pageSize, 'email');
+            console.log(userList);
+            setUsers(userList.data);
+            setTotalUsers(userList.totalElements);
+            setCurrentPage(userList.currentPage);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchApi(currentPage);
+    }, [currentPage]);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+    const handleDelete = () => {
+
+    }
 
     const columns = [
         {
@@ -49,30 +99,27 @@ function UserAdmin() {
             dataIndex: 'action',
             render: (_, record) => (
                 <div className='flex gap-x-3'>
-                    <div>
-                        <Button type='default'>Delete</Button>
-                    </div>
                     <div className=''>
-                        <Button onClick={showModal}>
+                        <Button type='primary' onClick={() => showModal(record.id, record.email, record.role, record.status)}>
                             Update
                         </Button>
                         <Modal open={isModalOpen} onOk={handleOk} onCancel={handleCancel} okText='Update'>
                             <div className='flex flex-col gap-y-4'>
                                 <h1 className='text-center text-[1.4rem]'>User informations</h1>
-                                <span>User: {record.email}</span>
-                                <span>Email: {record.email}</span>
+                                <span>Email: {emailCurrent}</span>
                                 <div className='flex flex-col'>
                                     <span>Role</span>
                                     <Select
-                                        defaultValue={record.role}
+                                        value={roleCurrent}
+                                        onChange={handleChangeRole}
                                         options={[
                                             {
-                                                value: 'User',
-                                                label: 'User'
+                                                value: 'user',
+                                                label: 'user'
                                             },
                                             {
-                                                value: 'Admin',
-                                                label: 'Admin'
+                                                value: 'admin',
+                                                label: 'admin'
                                             }
                                         ]}
                                     />
@@ -80,15 +127,16 @@ function UserAdmin() {
                                 <div className='flex flex-col mb-[50px]'>
                                     <span>Status</span>
                                     <Select
-                                        defaultValue={record.status}
+                                        onChange={handleChangeStatus}
+                                        value={statusCurrent}
                                         options={[
                                             {
-                                                value: 'Active',
-                                                label: 'Active'
+                                                value: 'active',
+                                                label: 'active'
                                             },
                                             {
-                                                value: 'Inactive',
-                                                label: 'Inactive'
+                                                value: 'deleted',
+                                                label: 'deleted'
                                             }
                                         ]}
                                     />
@@ -101,27 +149,14 @@ function UserAdmin() {
         },
     ];
 
-    const fetchApi = async (page) => {
-        try {
-            const userList = await authApi.getAllUser(page, pageSize, 'email');
-            setUsers(userList.data);
-            setTotalUsers(userList.totalElements);
-            setCurrentPage(userList.currentPage);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    useEffect(() => {
-        fetchApi(currentPage);
-    }, [currentPage]);
-
-    const handlePageChange = (page) => {
-        setCurrentPage(page);
-    };
 
     return (
         <>
+            <div className="w-full flex items-center justify-center mt-[50px] ">
+                {showAlert && (
+                    <Alert message="Cập nhập thành công" type="success" showIcon closable className="w-[250px]" />
+                )}
+            </div>
             <div className="px-[20px] py-[50px]">
                 <h1 className="text-[1.2rem] font-bold mb-[20px]">Quản lý người dùng</h1>
                 <div className='flex items-center justify-between'>
@@ -145,15 +180,15 @@ function UserAdmin() {
                         className='w-[120px]'
                     />
                     <div>
-                        <Input placeholder="Tìm kiếm người dùng theo email..." className='w-[300px] h-[33px]'/>;
+                        <Input placeholder="Tìm kiếm người dùng theo email..." className='w-[300px] h-[33px]' />;
                     </div>
                 </div>
                 <div className='mt-[30px] mb-[40px]'>
-                    <Table columns={columns} dataSource={users} pagination={false}/>
+                    <Table columns={columns} dataSource={users} pagination={false} />
                 </div>
                 <div className='flex items-center justify-center'>
                     <Pagination current={currentPage} total={totalUsers} pageSize={pageSize}
-                                onChange={handlePageChange}/>
+                        onChange={handlePageChange} />
                 </div>
             </div>
         </>
