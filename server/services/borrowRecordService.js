@@ -9,10 +9,10 @@ const notificationService = require('./notificationService');
       if (book.leftBook <= 0) throw new Error('Book is out of stock');
 
       const borrowDate = new Date();
-      const dueDate = new Date(borrowDate);
-      dueDate.setDate(borrowDate.getDate() + returnDays);
+      const returnDate = new Date(borrowDate);
+      returnDate.setDate(borrowDate.getDate() + returnDays);
 
-      return await borrowRecordRepo.createBorrowRequest(userId, bookId, dueDate);
+      return await borrowRecordRepo.createBorrowRequest(userId, bookId, returnDate);
     }
 
     async approveOrRejectBorrowRequest(id, status) {
@@ -64,8 +64,7 @@ const notificationService = require('./notificationService');
         email: borrowRecord.userId.email,
         bookTitle: borrowRecord.bookId.title,
         borrowDate: borrowRecord.borrowDate,
-        dueDate: borrowRecord.dueDate,
-        returnDate: borrowRecord.returnDate || 'Not returned',
+        returnDate: borrowRecord.returnDate,
         status: borrowRecord.status
       };
     }

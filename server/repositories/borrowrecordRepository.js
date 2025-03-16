@@ -1,9 +1,17 @@
 const BorrowRecord = require('../models/borrowRecord');
 
 class BorrowRecordRepository {
-    async createBorrowRequest(userId, bookId, dueDate) {
-        const borrowRequest = new BorrowRecord({userId, bookId, status: 'pending', dueDate});
-        return await borrowRequest.save();
+    async createBorrowRequest(userId, bookId, returnDate) {
+        if (!userId || !bookId || !returnDate) {
+            throw new Error('Missing required parameters');
+        }
+
+        try {
+            const borrowRequest = new BorrowRecord({ userId, bookId, status: 'pending', returnDate });
+            return await borrowRequest.save();
+        } catch (error) {
+            throw new Error(`Error creating borrow request: ${error.message}`);
+        }
     }
 
     async findBorrowRequestById(id) {
@@ -35,7 +43,7 @@ class BorrowRecordRepository {
         twoDaysFromNow.setDate(today.getDate() + 2);
 
         return BorrowRecord.find({
-            dueDate: {
+            returnDate: {
                 $gte: today,
                 $lt: twoDaysFromNow
             },
