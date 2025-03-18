@@ -18,8 +18,25 @@ class BorrowRecordRepository {
         return BorrowRecord.findById(id);
     }
 
-    async findBorrowRequestsByUser(userId) {
-        return BorrowRecord.find({userId}).populate('bookId', 'title author').sort({createdAt: -1});
+    async findBorrowRequestsByUser(userId, page = 1, size = 10) {
+        const skip = (page - 1) * size;
+
+        const [data, total] = await Promise.all([
+            BorrowRecord.find({ userId })
+                .populate('bookId', 'title author')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(size),
+            BorrowRecord.countDocuments({ userId })
+        ]);
+
+        return {
+            data,
+            totalElements: total,
+            totalPages: Math.ceil(total / size),
+            currentPage: page,
+            currentSize: size
+        };
     }
 
     async updateBorrowRequestStatus(id, status) {
@@ -28,13 +45,6 @@ class BorrowRecordRepository {
 
     async updateReturnDate(id) {
         return BorrowRecord.findByIdAndUpdate(id, {status: 'returned', returnDate: new Date()}, {new: true});
-    }
-
-    async getBorrowRecordDetail(borrowRecordId) {
-        return await BorrowRecord.findById(borrowRecordId)
-            .populate('userId', 'email') // Get email from User collection
-            .populate('bookId', 'title') // Get title from Book collection
-            .exec();
     }
 
     async findBorrowsDueInTwoDays() {
@@ -49,6 +59,27 @@ class BorrowRecordRepository {
             },
             status: 'approved'
         });
+    }
+    async findAll(page = 1, size = 10, sortField = 'createdAt') {
+        const skip = (page - 1) * size;
+
+        const [data, total] = await Promise.all([
+            BorrowRecord.find()
+                .populate('userId', 'email')
+                .populate('bookId', 'title')
+                .sort({[sortField]: 1})
+                .skip(skip)
+                .limit(size),
+            BorrowRecord.countDocuments()
+        ]);
+
+        return {
+            data,
+            totalElements: total,
+            totalPages: Math.ceil(total / size),
+            currentPage: page,
+            currentSize: size
+        };
     }
 }
 

@@ -1,3 +1,5 @@
+
+
 const borrowRecordRepo = require('../repositories/borrowrecordRepository');
 const Book = require('../models/book');
 const notificationService = require('./notificationService');
@@ -50,22 +52,27 @@ const notificationService = require('./notificationService');
       return await borrowRecordRepo.updateReturnDate(id);
     }
 
-    async getUserBorrowHistory(userId) {
-      return await borrowRecordRepo.findBorrowRequestsByUser(userId);
+    async getUserBorrowHistory(userId, page, size) {
+      return await borrowRecordRepo.findBorrowRequestsByUser(userId, page, size);
     }
 
-    async getBorrowRecordDetail(borrowRecordId) {
-      const borrowRecord = await borrowRecordRepo.getBorrowRecordDetail(borrowRecordId);
-      if (!borrowRecord) {
-        throw new Error('Borrow request not found.');
-      }
-
-      return {
-        email: borrowRecord.userId.email,
-        bookTitle: borrowRecord.bookId.title,
+    async getAllBorrowRecords(page, size, sortField) {
+      const result = await borrowRecordRepo.findAll(page, size, sortField);
+      const detailedRecords = result.data.map(borrowRecord => ({
+        id: borrowRecord._id,
+        email: borrowRecord.userId ? borrowRecord.userId.email : 'Unknown user',
+        bookTitle: borrowRecord.bookId ? borrowRecord.bookId.title : 'Unknown book',
         borrowDate: borrowRecord.borrowDate,
         returnDate: borrowRecord.returnDate,
         status: borrowRecord.status
+      }));
+
+      return {
+        data: detailedRecords,
+        totalElements: result.totalElements,
+        totalPages: result.totalPages,
+        currentPage: result.currentPage,
+        currentSize: result.currentSize
       };
     }
   }
